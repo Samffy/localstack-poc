@@ -1,0 +1,41 @@
+version: '3.3'
+
+services:
+
+  php-fpm:
+    build:
+      context: .
+      dockerfile: docker/php-fpm/Dockerfile
+      args:
+        PHP_VERSION: 7.4
+    env_file:
+        - ./.env
+    volumes:
+      - ./bin:/var/www/bin
+      - ./src:/var/www/src
+      - ./docker/php-fpm:/docker-entrypoint.sh
+    ports:
+      - '9001:9000'
+    depends_on:
+      - localstack
+
+  localstack:
+    image: localstack/localstack:latest
+    user: localstack
+    ports:
+      - "4567-4599:4567-4599"
+      - "8055:8080"
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - SERVICES=s3
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+      - DEFAULT_REGION=eu-west-1
+      - AWS_DEFAULT_REGION=eu-west-1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - HOSTNAME=localhost
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      #- ./.localstack/data:/tmp/localstack/data
+      - ./.localstack/scripts:/docker-entrypoint-initaws.d

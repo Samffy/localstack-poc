@@ -1,0 +1,6 @@
+/.env
+/vendor/
+
+.localstack/*
+!.localstack/scripts
+!.localstack/data/.gitkeep
